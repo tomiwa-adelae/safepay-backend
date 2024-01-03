@@ -22,11 +22,11 @@ const userSchema = new mongoose.Schema(
 			type: String,
 			required: true,
 		},
-		// accountBalance: {
-		// 	type: Number,
-		// 	required: true,
-		// 	default: 0,
-		// },
+		accountBalance: {
+			type: Number,
+			required: true,
+			default: 0,
+		},
 		password: {
 			type: String,
 			required: true,

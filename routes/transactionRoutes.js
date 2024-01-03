@@ -1,11 +1,15 @@
 import express from "express";
 import { protect } from "../middleware/authMiddleware.js";
 
-import { getAllTransactions } from "../controllers/transactionController.js";
+import {
+	getAllTransactions,
+	makeTransaction,
+} from "../controllers/transactionController.js";
 
 const router = express.Router();
 
-// router.route("/").get(protect, getAllTransactions);
-router.get("/", getAllTransactions);
+router.route("/").get(protect, getAllTransactions);
+router.route("/").post(protect, makeTransaction);
+// router.get("/", getAllTransactions);
 
 export default router;
