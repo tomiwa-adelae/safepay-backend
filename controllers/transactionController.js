@@ -6,10 +6,17 @@ import Transaction from "../models/transactionModel.js";
 // @route   GET /api/transactions
 // @access  Private
 const getAllTransactions = asyncHandler(async (req, res) => {
-	const transactions = await Transaction.find({ user: req.user._id }).sort({
-		createdAt: -1,
-	});
-	res.json(transactions);
+	try {
+		const transactions = await Transaction.find({
+			user: req.user._id,
+		}).sort({
+			createdAt: -1,
+		});
+		res.json(transactions);
+	} catch (err) {
+		res.status(400);
+		throw new Error("An error occured!");
+	}
 });
 
 // @desc    Make transaction
@@ -22,6 +29,8 @@ const makeTransaction = asyncHandler(async (req, res) => {
 	});
 	const { recipientAccountNumber, amount, narration, transactionPin } =
 		req.body;
+
+	// console.log(sender);
 
 	if (recipientAccountNumber === req.user.phoneNumber) {
 		res.status(400);
@@ -37,7 +46,10 @@ const makeTransaction = asyncHandler(async (req, res) => {
 			throw new Error("Enter valid account number. User not found!");
 		} else {
 			// Check for transaction pin
-			if (await sender.matchTransactionPin(transactionPin)) {
+			if (
+				transactionPin &&
+				(await sender.matchTransactionPin(transactionPin))
+			) {
 				// Check for balance to proceed the transaction
 				if (sender.accountBalance < amount) {
 					res.status(400);

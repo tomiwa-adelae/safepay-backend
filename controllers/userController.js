@@ -83,4 +83,33 @@ const refreshUser = asyncHandler(async (req, res) => {
 	});
 });
 
-export { loginUser, registerUser, refreshUser };
+// @desc    Get a single user with their phone number
+// @route   GET /api/users/:phoneNumber
+// @access  Private
+const getUser = asyncHandler(async (req, res) => {
+	try {
+		const phoneNumber = req.params.phoneNumber;
+		const recipient = await User.findOne({ phoneNumber });
+
+		// console.log(recipient, req.user);
+
+		if (recipient) {
+			if (phoneNumber === req.user.phoneNumber) {
+				res.status(400);
+				throw new Error("You cannot transfer to yourself!");
+			} else {
+				res.json({
+					name: recipient.name,
+				});
+			}
+		} else {
+			res.status(400);
+			throw new Error("Enter valid account number. User not found!");
+		}
+	} catch (err) {
+		res.status(400);
+		throw new Error("Enter valid account number. User not found!");
+	}
+});
+
+export { loginUser, registerUser, refreshUser, getUser };
