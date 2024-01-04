@@ -11,6 +11,14 @@ const transactionSchema = new mongoose.Schema(
 			type: Number,
 			required: true,
 		},
+		recipientName: {
+			type: String,
+			required: true,
+		},
+		senderName: {
+			type: String,
+			required: true,
+		},
 		senderAccountNumber: {
 			type: Number,
 			required: true,

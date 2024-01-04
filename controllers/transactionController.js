@@ -6,7 +6,9 @@ import Transaction from "../models/transactionModel.js";
 // @route   GET /api/transactions
 // @access  Private
 const getAllTransactions = asyncHandler(async (req, res) => {
-	const transactions = await Transaction.find({ user: req.user._id });
+	const transactions = await Transaction.find({ user: req.user._id }).sort({
+		createdAt: -1,
+	});
 	res.json(transactions);
 });
 
@@ -44,7 +46,9 @@ const makeTransaction = asyncHandler(async (req, res) => {
 					// Debit transaction for the sender
 					const debitTransaction = new Transaction({
 						senderAccountNumber: req.user.phoneNumber,
+						senderName: req.user.name,
 						recipientAccountNumber,
+						recipientName: recipientUser.name,
 						amount,
 						narration,
 						transactionPin,
@@ -55,7 +59,9 @@ const makeTransaction = asyncHandler(async (req, res) => {
 					// Credit transaction for the recipient
 					const creditTransaction = new Transaction({
 						senderAccountNumber: req.user.phoneNumber,
+						senderName: req.user.name,
 						recipientAccountNumber: recipientUser.phoneNumber,
+						recipientName: recipientUser.name,
 						amount,
 						narration,
 						user: recipientUser._id,
@@ -70,7 +76,6 @@ const makeTransaction = asyncHandler(async (req, res) => {
 					// Save the account balaance
 					const updatedUser = await sender.save();
 					await recipientUser.save();
-					res.json(updatedUser);
 
 					// Save Transactions
 					const savedDebit = await debitTransaction.save();

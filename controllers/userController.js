@@ -18,7 +18,7 @@ const loginUser = asyncHandler(async (req, res) => {
 			name: user.name,
 			email: user.email,
 			phoneNumber: user.phoneNumber,
-			// accountbalance: user.accountBalance,
+			accountBalance: user.accountBalance,
 			token,
 		});
 	} else {
@@ -32,27 +32,6 @@ const loginUser = asyncHandler(async (req, res) => {
 // @access  Public
 const registerUser = asyncHandler(async (req, res) => {
 	const { name, email, phoneNumber, transactionPin, password } = req.body;
-
-	// // Check for all fields filled
-	// if (!name || !email || !transactionPin || !phoneNumber || !password) {
-	// 	res.status(400);
-	// 	throw new Error("Please enter all fields!");
-	// }
-
-	// if (phoneNumber.length !== 11 || phoneNumber.charAt(0) !== "0") {
-	// 	res.status(400);
-	// 	throw new Error("Enter a valid phone number!");
-	// }
-
-	// if (password.length <= 6) {
-	// 	res.status(400);
-	// 	throw new Error("Password should be at least 6 character long!");
-	// }
-
-	// if (transactionPin.length !== 4) {
-	// 	res.status(400);
-	// 	throw new Error("Transaction pin should be 4 digits");
-	// }
 
 	const userExist = await User.findOne({ phoneNumber });
 
@@ -76,15 +55,32 @@ const registerUser = asyncHandler(async (req, res) => {
 			name: user.name,
 			email: user.email,
 			phoneNumber: user.phoneNumber,
-			// accountbalance: user.accountBalance,
+			accountBalance: user.accountBalance,
 			token,
 		});
-
-		// console.log(res.cookie);
 	} else {
 		res.status(400);
 		throw new Error("Invalid user data");
 	}
 });
 
-export { loginUser, registerUser };
+// @desc    Refresh page to get current details
+// @route   GET /api/users
+// @access  Private
+const refreshUser = asyncHandler(async (req, res) => {
+	const phoneNumber = req.user.phoneNumber;
+	const user = await User.findOne({ phoneNumber });
+
+	const token = generateToken(res, user._id);
+
+	res.status(201).json({
+		_id: user._id,
+		name: user.name,
+		email: user.email,
+		phoneNumber: user.phoneNumber,
+		accountBalance: user.accountBalance,
+		token,
+	});
+});
+
+export { loginUser, registerUser, refreshUser };
