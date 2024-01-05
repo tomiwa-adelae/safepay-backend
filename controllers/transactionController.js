@@ -19,6 +19,25 @@ const getAllTransactions = asyncHandler(async (req, res) => {
 	}
 });
 
+// @desc    Get Recent user's transactions - First 3
+// @route   GET /api/transactions/recentTransactions
+// @access  Private
+const getRecentTransactions = asyncHandler(async (req, res) => {
+	try {
+		const transactions = await Transaction.find({
+			user: req.user._id,
+		})
+			.sort({
+				createdAt: -1,
+			})
+			.limit(3);
+		res.json(transactions);
+	} catch (err) {
+		res.status(400);
+		throw new Error("An error occured!");
+	}
+});
+
 // @desc    Make transaction
 // @route   POST /api/transactions
 // @access  Private
@@ -83,7 +102,7 @@ const makeTransaction = asyncHandler(async (req, res) => {
 					sender.accountBalance = sender.accountBalance - amount;
 
 					recipientUser.accountBalance =
-						recipientUser.accountBalance + amount;
+						recipientUser.accountBalance + Number(amount);
 
 					// Save the account balaance
 					const updatedUser = await sender.save();
@@ -102,4 +121,4 @@ const makeTransaction = asyncHandler(async (req, res) => {
 	}
 });
 
-export { getAllTransactions, makeTransaction };
+export { getAllTransactions, makeTransaction, getRecentTransactions };
