@@ -49,8 +49,6 @@ const makeTransaction = asyncHandler(async (req, res) => {
 	const { recipientAccountNumber, amount, narration, transactionPin } =
 		req.body;
 
-	// console.log(sender);
-
 	if (recipientAccountNumber === req.user.phoneNumber) {
 		res.status(400);
 		throw new Error("You cannot transfer to yourself!");
