@@ -1,6 +1,7 @@
 import asyncHandler from "express-async-handler";
 import User from "../models/userModel.js";
 import generateToken from "../utils/generateToken.js";
+import bcrypt from "bcryptjs";
 
 // @desc    Auth user & get token
 // @route   POST /api/users/login
@@ -37,7 +38,7 @@ const registerUser = asyncHandler(async (req, res) => {
 
 	if (userExist) {
 		res.status(400);
-		throw new Error("User already exists!");
+		throw new Error("User already exists! Please login");
 	}
 	const user = await User.create({
 		name,
@@ -91,25 +92,90 @@ const getUser = asyncHandler(async (req, res) => {
 		const phoneNumber = req.params.phoneNumber;
 		const recipient = await User.findOne({ phoneNumber });
 
-		// console.log(recipient, req.user);
-
-		if (recipient) {
-			if (phoneNumber === req.user.phoneNumber) {
-				res.status(400);
-				throw new Error("You cannot transfer to yourself!");
-			} else {
-				res.json({
+		if (phoneNumber === req.user.phoneNumber) {
+			res.status(400);
+			throw new Error("You cannot transfer to yourself!");
+		} else {
+			if (recipient) {
+				res.status(200).json({
 					name: recipient.name,
 				});
+			} else {
+				res.status(400);
+				throw new Error("Enter valid account number. User not found!");
 			}
-		} else {
-			res.status(400);
-			throw new Error("Enter valid account number. User not found!");
 		}
 	} catch (err) {
 		res.status(400);
-		throw new Error("Enter valid account number. User not found!");
+		throw new Error(err);
 	}
 });
 
-export { loginUser, registerUser, refreshUser, getUser };
+// @desc    Update user login password
+// @route   PUT /api/users/password
+// @access  Private
+const updateUserPassword = asyncHandler(async (req, res) => {
+	const { oldPassword, newPassword } = req.body;
+	const user = await User.findById(req.user._id);
+
+	if (user) {
+		if (await user.matchPassword(oldPassword)) {
+			user.password = newPassword;
+
+			const salt = await bcrypt.genSalt(10);
+
+			user.password = await bcrypt.hash(user.password, salt);
+
+			await user.save();
+
+			res.status(201).json({
+				msg: "Your login password has been changed successfully!",
+			});
+		} else {
+			res.status(404);
+			throw new Error("Invalid old password!");
+		}
+	} else {
+		res.status(404);
+		throw new Error("User not found! An error occured!");
+	}
+});
+
+// @desc    Update user transaction pin
+// @route   PUT /api/users/pin
+// @access  Private
+const updateUserPin = asyncHandler(async (req, res) => {
+	const { oldTransactionPin, newTransactionPin } = req.body;
+	const user = await User.findById(req.user._id);
+
+	if (user) {
+		if (await user.matchTransactionPin(oldTransactionPin)) {
+			user.transactionPin = newTransactionPin;
+
+			const salt = await bcrypt.genSalt(10);
+
+			user.password = await bcrypt.hash(user.transactionPin, salt);
+
+			await user.save();
+
+			res.status(201).json({
+				msg: "Your transaction pin has been changed successfully!",
+			});
+		} else {
+			res.status(404);
+			throw new Error("Invalid old transaction pin!");
+		}
+	} else {
+		res.status(404);
+		throw new Error("User not found! An error occured!");
+	}
+});
+
+export {
+	loginUser,
+	registerUser,
+	refreshUser,
+	getUser,
+	updateUserPassword,
+	updateUserPin,
+};
