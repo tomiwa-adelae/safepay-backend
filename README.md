@@ -52,20 +52,25 @@ npm run server
 
 Sample User Logins
 
-08027836001 (Customer)
-1234567890
+08027836001 (Login Phone Number)
+1234567890 (Login password)
+1234 (Transaction Pin)
 
-07038803037 (Customer)
-1234567890
+07038803037 (Login Phone Number)
+1234567890 (Login password)
+1234 (Transaction Pin)
 
-07033623935 (Customer)
-1234567890
+07033623935 (Login Phone Number)
+1234567890 (Login password)
+1234 (Transaction Pin)
 
-07015687868 (Customer)
-1234567890
+07015687868 (Login Phone Number)
+1234567890 (Login password)
+1234 (Transaction Pin)
 
-09033826455 (Customer)
-1234567890
+09033826455 (Login Phone Number)
+1234567890 (Login password)
+1234 (Transaction Pin)
 
 ---
 
