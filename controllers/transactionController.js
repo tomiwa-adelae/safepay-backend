@@ -7,11 +7,13 @@ import Transaction from "../models/transactionModel.js";
 // @access  Private
 const getAllTransactions = asyncHandler(async (req, res) => {
 	try {
+		// Get all transactions and send them to the user
 		const transactions = await Transaction.find({
 			user: req.user._id,
 		}).sort({
 			createdAt: -1,
 		});
+
 		res.json(transactions);
 	} catch (err) {
 		res.status(400);
@@ -24,6 +26,7 @@ const getAllTransactions = asyncHandler(async (req, res) => {
 // @access  Private
 const getRecentTransactions = asyncHandler(async (req, res) => {
 	try {
+		// Get recent transactions and send them to the user
 		const transactions = await Transaction.find({
 			user: req.user._id,
 		})
@@ -31,6 +34,7 @@ const getRecentTransactions = asyncHandler(async (req, res) => {
 				createdAt: -1,
 			})
 			.limit(3);
+
 		res.json(transactions);
 	} catch (err) {
 		res.status(400);
@@ -42,18 +46,21 @@ const getRecentTransactions = asyncHandler(async (req, res) => {
 // @route   POST /api/transactions
 // @access  Private
 const makeTransaction = asyncHandler(async (req, res) => {
-	// Debit the sender and credit the recipient
-	const sender = await User.findOne({
-		phoneNumber: req.user.phoneNumber,
-	});
+	// Get details from the request body
 	const { recipientAccountNumber, amount, narration, transactionPin } =
 		req.body;
 
+	// Find the sender
+	const sender = await User.findOne({
+		phoneNumber: req.user.phoneNumber,
+	});
+
+	// Check if sender is equal to Recipient
 	if (recipientAccountNumber === req.user.phoneNumber) {
 		res.status(400);
 		throw new Error("You cannot transfer to yourself!");
 	} else {
-		// get recipient user
+		// Get recipient user
 		const recipientUser = await User.findOne({
 			phoneNumber: recipientAccountNumber,
 		});
@@ -62,7 +69,7 @@ const makeTransaction = asyncHandler(async (req, res) => {
 			res.status(400);
 			throw new Error("Enter valid account number. User not found!");
 		} else {
-			// Check for transaction pin
+			// Check for transaction pin & validate the pin
 			if (
 				transactionPin &&
 				(await sender.matchTransactionPin(transactionPin))
@@ -97,12 +104,14 @@ const makeTransaction = asyncHandler(async (req, res) => {
 						transactionType: "credit",
 					});
 
+					// Subtract the sender
 					sender.accountBalance = sender.accountBalance - amount;
 
+					// Add the recipient
 					recipientUser.accountBalance =
 						recipientUser.accountBalance + Number(amount);
 
-					// Save the account balaance
+					// Save the account balances for both
 					const updatedUser = await sender.save();
 					await recipientUser.save();
 

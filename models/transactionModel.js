@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 
+// Creating Transaction Schema
 const transactionSchema = new mongoose.Schema(
 	{
 		user: {

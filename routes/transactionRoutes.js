@@ -9,10 +9,9 @@ import {
 
 const router = express.Router();
 
+// Transactions controller routes
 router.route("/").get(protect, getAllTransactions);
 router.route("/recentTransactions").get(protect, getRecentTransactions);
 router.route("/").post(protect, makeTransaction);
-// router.post("/", makeTransaction);
-// router.get("/", getAllTransactions);
 
 export default router;

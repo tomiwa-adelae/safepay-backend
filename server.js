@@ -1,16 +1,19 @@
+// Importing required files
 import dotenv from "dotenv";
 dotenv.config();
 
 import express from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 
+// Import mongoDB connect
 import connectDB from "./config/db.js";
 
 // Import Routes
 import userRoutes from "./routes/userRoutes.js";
 import transactionRoutes from "./routes/transactionRoutes.js";
-import cookieParser from "cookie-parser";
 
+// Import middleware
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
 
 const app = express();
